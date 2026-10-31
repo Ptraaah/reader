@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { render } from '../../src/render.js';
 import { slides } from '../../src/slides.js';
-import { frame, preview, run, settle } from '../../test/dom.js';
+import { frame, preview, run, settle, assertElement, assertNotElement } from '../../test/dom.js';
 import { FEATURES } from '../index.js';
 
 const card = (body) => body.match(/<span class="video[" ][^]*?<\/span><\/span>|<span class="video[" ][^>]*><button[^]*?<\/button><\/span>/)?.[0];
@@ -76,7 +76,7 @@ test('in the preview, pressing it swaps in the player, which takes the keyboard;
   assert.equal(player.getAttribute('title'), 'Body scan');
   assert.match(player.getAttribute('allow'), /autoplay/);
   assert.equal(player.parentNode.className, 'video-screen', 'where the thumbnail was, the same size');
-  assert.equal(p.document.activeElement, player, 'the keyboard isn\'t left on a button that\'s gone');
+  assertElement(p.document.activeElement, player, 'the keyboard isn\'t left on a button that\'s gone');
   assert.equal(p.document.querySelectorAll('.video-play').length, 1, 'the other is still a thumbnail');
   assert.equal(p.document.querySelector('.choice-box').checked, false, 'the box is the box\'s business');
   await settle();
@@ -104,7 +104,7 @@ test('on a slide, it\'s the player from the start, stopped, for a press on its o
   const [player] = players(p);
   assert.equal(player.getAttribute('src'), 'https://www.youtube-nocookie.com/embed/FcWl8WgKP8E', 'not asked to start');
   assert.equal(p.document.querySelector('.video-play'), null);
-  assert.notEqual(p.document.activeElement, player, 'the keyboard stays with the deck');
+  assertNotElement(p.document.activeElement, player, 'the keyboard stays with the deck');
 });
 
 test('in Work too, and the same player through the renders after, but in Edit the card', () => {
