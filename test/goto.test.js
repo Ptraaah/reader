@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { app, globals } from './dom.js';
+import { app, globals, assertElement } from './dom.js';
 
 const window = globals(app());
 const { document } = window;
@@ -26,7 +26,7 @@ test('Go to is a dialog of a box that suggests places from a list', () => {
 
 test('the place chosen is the box\'s active one, and moves with the arrows', () => {
   openGoTo();
-  assert.equal(document.activeElement, el.gotoInput);
+  assertElement(document.activeElement, el.gotoInput);
   assert.equal(el.gotoInput.getAttribute('aria-expanded'), 'true');
   const options = () => [...el.gotoList.querySelectorAll('[role=option]')];
   assert.deepEqual(options().map((o) => o.textContent), ['One', 'Two', 'Three'].map((t, i) => `${t}line ${[1, 5, 7][i]}`));
