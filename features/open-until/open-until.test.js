@@ -2,7 +2,7 @@ import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { render } from '../../src/render.js';
 import { slides, pages } from '../../src/slides.js';
-import { preview, settle } from '../../test/dom.js';
+import { preview, settle, assertNotElement } from '../../test/dom.js';
 import { readUntil, closingTime, deadline } from './index.js';
 
 const at = (...parts) => new Date(...parts).getTime();
@@ -159,7 +159,7 @@ test('a puzzle in a record is drawn as it was left, and can\'t be played: no key
   assert.equal(p.window.Preview.closed, true);
   assert.equal(host.hasAttribute('tabindex'), false);
   assert.equal(host.hasAttribute('role'), false);
-  assert.notEqual(p.document.activeElement, host);
+  assertNotElement(p.document.activeElement, host);
   const key = (k) => host.dispatchEvent(new p.window.KeyboardEvent('keydown', { key: k, code: `Digit${k}`, bubbles: true, cancelable: true }));
   key('6');
   await settle();
