@@ -1,7 +1,7 @@
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { slides } from '../src/slides.js';
-import { app, globals } from './dom.js';
+import { app, globals, assertElement } from './dom.js';
 
 // deck.js is the app's, for the browser: it's loaded here on the app's page.
 const window = globals(app());
@@ -253,7 +253,7 @@ test('O lays out every slide, numbered as paging says, the one showing highlight
   assert.equal(now.getAttribute('aria-current'), 'true');
   assert.equal(now.getAttribute('aria-label'), 'Slide 3 of 12: Title 3 (now)');
   // The keyboard is on it, the only one in reach (a roving tabindex).
-  assert.ok(window.document.activeElement === now, 'the slide showing has the keyboard');
+  assertElement(window.document.activeElement, now, 'the slide showing has the keyboard');
   assert.deepEqual(options().map((o) => o.tabIndex).filter((t) => t === 0), [0]);
   assert.equal(now.getAttribute('aria-selected'), 'true');
   // It says it's out; the slide with the keyboard says itself, by its name.
@@ -312,7 +312,7 @@ test('Enter goes to the highlighted slide from its start, and gives the keyboard
   assert.equal(asked.at(-1).type, 'render');
   assert.equal(asked.at(-1).body, '<h1>S5</h1>');
   assert.equal(asked.at(-1).reveal, 0);
-  assert.ok(window.document.activeElement === el.deck, 'the deck has the keyboard');
+  assertElement(window.document.activeElement, el.deck, 'the deck has the keyboard');
   assert.ok(!el.stage.inert && !el.deckNotes.inert && !el.deckFoot.inert);
   // Only where it went is said, once the stage says what showed; not where it was.
   assert.notEqual(el.deckSays.textContent, 'Slide 3 of 12, step 1 of 2');
@@ -382,12 +382,12 @@ test('the speaker view moving the deck with the overview out rings the slide it 
   assert.equal(options()[5].getAttribute('aria-label'), 'Slide 6 of 12: Title 6 (now)');
   assert.equal(options()[1].getAttribute('aria-label'), 'Slide 2 of 12: Title 2');
   // The highlight stays where it was, and the stage's word on the slide isn't said over the overview.
-  assert.ok(window.document.activeElement === options()[2], 'the highlight keeps the keyboard');
+  assertElement(window.document.activeElement, options()[2], 'the highlight keeps the keyboard');
   revealed({ ...asked.at(-1).say, says: 'Title 6' });
   // Its keys move the deck too, not the room's highlight.
   onSpeakerMessage({ data: { type: 'key', key: 'ArrowRight' } });
   assert.deepEqual([deck.index, deck.reveal], [5, 1]);
-  assert.ok(window.document.activeElement === options()[2], 'the highlight stays put');
+  assertElement(window.document.activeElement, options()[2], 'the highlight stays put');
   revealed({ index: 5, reveal: 1, says: 'a point' });
   assert.equal(el.deckSays.textContent, 'Overview');
   deckKey({ key: 'Escape' });
@@ -412,7 +412,7 @@ test('Esc puts the overview away and the deck is where it was, and says so', () 
   assert.ok(el.overview.hidden);
   assert.equal(options().length, 0);
   assert.deepEqual([deck.index, deck.reveal, asked.length], [3, 1, 0]);
-  assert.ok(window.document.activeElement === el.deck, 'the deck has the keyboard');
+  assertElement(window.document.activeElement, el.deck, 'the deck has the keyboard');
   assert.equal(el.deckSays.textContent, 'Slide 4 of 12, step 1 of 2');
   // Esc again is the deck's own: done presenting.
   deckKey({ key: 'Escape' });
@@ -478,7 +478,7 @@ test('⌘+, ⌘− and ⌘0 size the slides\' text with the overview out, and it
   assert.equal(drawn.at(-1).scale, 1);
   // The overview is still out, with the keyboard where it was.
   assert.ok(!el.overview.hidden);
-  assert.ok(window.document.activeElement === options()[1], 'the highlight keeps the keyboard');
+  assertElement(window.document.activeElement, options()[1], 'the highlight keeps the keyboard');
   deckKey({ key: 'Escape' });
   deck.open = false;
   window.IntersectionObserver = IO;
