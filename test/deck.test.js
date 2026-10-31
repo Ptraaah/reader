@@ -336,6 +336,39 @@ test('Enter goes to the highlighted slide from its start, and gives the keyboard
   deck.open = false;
 });
 
+test('Space goes to the highlighted slide from its start, as Enter does', async () => {
+  const asked = presenting(12, { index: 2, reveal: 1 });
+  deckKey({ key: 'O' });
+  deckKey({ key: 'ArrowRight' });
+  deckKey({ key: 'ArrowRight' });
+  assert.equal(deckKey({ key: ' ' }), true);
+  assert.ok(el.overview.hidden);
+  assert.deepEqual([deck.index, deck.reveal], [4, 0]);
+  await deck.stageReady;
+  await null;
+  assert.equal(asked.at(-1).type, 'render');
+  assert.equal(asked.at(-1).body, '<h1>S5</h1>');
+  assert.equal(asked.at(-1).reveal, 0);
+  assert.ok(window.document.activeElement === el.deck, 'the deck has the keyboard');
+  assert.ok(!el.stage.inert && !el.deckNotes.inert && !el.deckFoot.inert);
+  deck.open = false;
+});
+
+test('Tab is the overview\'s while it is out: the highlight keeps the keyboard and the deck stays where it was', () => {
+  const asked = presenting(12, { index: 2, reveal: 1 });
+  deckKey({ key: 'O' });
+  deckKey({ key: 'ArrowRight' });
+  const at = options()[3];
+  assert.ok(window.document.activeElement === at, 'the highlight has the keyboard');
+  assert.equal(deckKey({ key: 'Tab' }), true);
+  assert.equal(deckKey({ key: 'Tab', shiftKey: true }), true);
+  assert.ok(!el.overview.hidden, 'the overview is still out');
+  assert.ok(window.document.activeElement === at, 'the highlight keeps the keyboard');
+  assert.deepEqual([deck.index, deck.reveal, asked.length], [2, 1, 0]);
+  deckKey({ key: 'Escape' });
+  deck.open = false;
+});
+
 test('the speaker view moving the deck with the overview out rings the slide it went to, and the overview keeps the say', async () => {
   const asked = presenting(12, { index: 1, reveal: 1 });
   deckKey({ key: 'O' });
