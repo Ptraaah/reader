@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { render } from '../../src/render.js';
-import { preview } from '../../test/dom.js';
+import { preview, assertElement } from '../../test/dom.js';
 
 const SUDOKU = `\`\`\`sudoku
 5 3 . | . 7 . | . . .
@@ -141,7 +141,7 @@ test('Esc hands the keys back but keeps the puzzle in focus, and Enter takes the
   const { document, host, press, said } = playing(SUDOKU);
   host.focus();
   assert.ok(press('Escape').defaultPrevented);
-  assert.equal(document.activeElement, host);
+  assertElement(document.activeElement, host);
   assert.equal(said(), 'Keys handed back. Enter to play');
   // The page has them now: an arrow isn't the puzzle's, nor another Esc.
   assert.ok(!press('ArrowRight').defaultPrevented);
