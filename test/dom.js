@@ -15,8 +15,14 @@
  *   settle()              the end of the turn, when the edits a page holds go up
  *   preview()             the preview frame as the server serves it, every feature's
  *                         script in it: `show(body)` draws a render, as the app sends one
+ *   assertElement(a, b)   that a and b are the same element, and
+ *   assertNotElement      that they are not: both fail at once, naming each
+ *                         element by its tag, id and classes, where a failing
+ *                         assert.equal describes the whole of an element for
+ *                         its message and can hang the run on doing so
  *   globals(window)       makes the page this test's own, for the app's modules
  */
+import { AssertionError } from 'node:assert';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import { Window } from 'happy-dom';
@@ -85,6 +91,35 @@ export function preview(opts = {}) {
   run(f.window, 'static/preview-api.js', 'static/spoken.js', 'static/tone.js', ...FEATURES.flatMap((x) => [x.preview ?? []].flat()), 'static/ink.js', 'static/preview.js');
   const show = (body, m = {}) => f.send({ type: 'render', css: '', body, ...m });
   return { ...f, show };
+}
+
+// What an element is called when an assert names it: its tag, id and
+// classes, which is enough to know which element was meant and which was
+// had, and quick to say, where describing the element itself is neither.
+const describe = (el) => {
+  if (!el || typeof el !== 'object' || !el.tagName) return String(el);
+  const classes = Array.from(el.classList ?? [], (c) => `.${c}`).join('');
+  return `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}${classes}`;
+};
+
+export function assertElement(actual, expected, message) {
+  if (actual === expected) return;
+  throw new AssertionError({
+    message: `${message ? `${message}: ` : ''}expected ${describe(expected)}, got ${describe(actual)}`,
+    actual: describe(actual),
+    expected: describe(expected),
+    operator: 'assertElement',
+  });
+}
+
+export function assertNotElement(actual, expected, message) {
+  if (actual !== expected) return;
+  throw new AssertionError({
+    message: `${message ? `${message}: ` : ''}expected anything but ${describe(expected)}, got it`,
+    actual: describe(actual),
+    expected: `not ${describe(expected)}`,
+    operator: 'assertNotElement',
+  });
 }
 
 // Node's own are kept: its timers, for one, are what `mock.timers` mocks.
