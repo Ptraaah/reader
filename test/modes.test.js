@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { app, globals } from './dom.js';
+import { app, globals, assertElement } from './dom.js';
 
 const { document } = globals(app());
 const { el, remembered, remember } = await import('../static/app/state.js');
@@ -18,7 +18,7 @@ test('☰ says whether the file list is showing', () => {
 test('hiding the list with the keyboard in it leaves the keyboard on ☰', () => {
   el.filter.focus();
   toggleSidebar(true);
-  assert.equal(document.activeElement, el.sidebarToggle);
+  assertElement(document.activeElement, el.sidebarToggle);
   toggleSidebar(false);
 });
 
