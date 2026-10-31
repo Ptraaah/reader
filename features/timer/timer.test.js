@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { render } from '../../src/render.js';
 import { slides } from '../../src/slides.js';
-import { preview, settle } from '../../test/dom.js';
+import { preview, settle, assertElement } from '../../test/dom.js';
 import { duration } from './index.js';
 
 const para = (src, env) => render(src, env).body.match(/<p>([\s\S]*?)<\/p>/)[1];
@@ -130,7 +130,7 @@ test('at zero it stops, says so on the page and once aloud, and sounds; Reset se
   assert.equal(parts(long).time, '0:29', 'the other runs on');
   short.querySelector('.timer-reset').click();
   assert.deepEqual(parts(short), { time: '1:30', go: 'Start', reset: false, up: null });
-  assert.equal(p.document.activeElement, short.querySelector('.timer-go'), 'the keyboard isn\'t left on a button that\'s gone');
+  assertElement(p.document.activeElement, short.querySelector('.timer-go'), 'the keyboard isn\'t left on a button that\'s gone');
   t.pass(30_000);
   assert.equal(said.textContent, 'Timer, 2 minutes: time’s up');
 });
