@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { file, frames, run } from './dom.js';
+import { file, frames, run, assertElement } from './dom.js';
 
 /**
  * The speaker view, loaded as speaker.html loads it, on a clock that reads
@@ -205,12 +205,12 @@ test('O lays out every slide here, those done apart from those to come, and Ente
   assert.deepEqual(options.map((o) => (o.classList.contains('done') ? 'done' : o.classList.contains('now') ? 'now' : '')), ['done', 'done', 'now', '', '', '']);
   assert.equal(options[0].getAttribute('aria-label'), 'Slide 1 of 6: Title 1 (done)');
   assert.equal(options[3].getAttribute('aria-label'), 'Slide 4 of 6: Title 4');
-  assert.ok(window.document.activeElement === options[2], 'the slide showing has the keyboard');
+  assertElement(window.document.activeElement, options[2], 'the slide showing has the keyboard');
   assert.equal($('overview-heard').textContent, 'Overview');
   assert.ok($('speaker').inert, 'the rest is out of reach');
   // The keys are its: they don't move the deck.
   press('ArrowRight');
-  assert.ok(window.document.activeElement === options[3], 'the slide come to has the keyboard, heard by its name');
+  assertElement(window.document.activeElement, options[3], 'the slide come to has the keyboard, heard by its name');
   assert.equal($('overview-heard').textContent, 'Overview');
   assert.deepEqual(sent.filter((m) => m.type === 'key'), []);
   // The deck moving on marks the slides afresh.
@@ -222,7 +222,7 @@ test('O lays out every slide here, those done apart from those to come, and Ente
   assert.deepEqual(sent.at(-1), { type: 'go', index: 4, reveal: 0 });
   assert.equal($('overview-heard').textContent, 'Slide 5 of 6: Title 5', 'where the deck went is said');
   assert.ok(!$('speaker').inert);
-  assert.ok(window.document.activeElement === $('timer'), 'the keyboard is back where it was');
+  assertElement(window.document.activeElement, $('timer'), 'the keyboard is back where it was');
 });
 
 test('the overview\'s thumbnails here are drawn again at the room\'s new text size', () => {
