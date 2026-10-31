@@ -1,6 +1,6 @@
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
-import { app, globals } from './dom.js';
+import { app, globals, assertElement } from './dom.js';
 
 // A toast hides itself a few seconds on; here it waits to be told.
 mock.timers.enable({ apis: ['setTimeout'] });
@@ -108,7 +108,7 @@ test('without the clipboard, it\'s copied the old way, and the editor\'s selecti
     editing(TEXT, { selected: [5, 10] });
     el.editor.focus();
     assert.deepEqual(await copying(copyLines), ['/home/me/docs/notes/a b.md:2-3']);
-    assert.equal(document.activeElement, el.editor);
+    assertElement(document.activeElement, el.editor);
     assert.deepEqual([el.editor.selectionStart, el.editor.selectionEnd], [5, 10]);
     assert.equal(document.querySelector('body > textarea'), null, 'the scratch is gone');
     execCopies = false;
