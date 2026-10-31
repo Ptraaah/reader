@@ -1,7 +1,7 @@
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { app, globals } from './dom.js';
+import { app, globals, assertNotElement } from './dom.js';
 
 // The mode a file opens in, by its `type:` (#57): a workbook in Work, slides
 // in Edit, a document in whichever was last chosen.
@@ -62,5 +62,5 @@ test('a file whose type leaves Work doesn\'t take the keyboard into the editor',
   el.filter.focus();
   await open('talk.md');
   assert.equal(working(), false);
-  assert.ok(document.activeElement !== el.editor, 'the editor took the keyboard');
+  assertNotElement(document.activeElement, el.editor, 'the editor took the keyboard');
 });
