@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { render } from '../../src/render.js';
 import { slides } from '../../src/slides.js';
-import { preview, settle } from '../../test/dom.js';
+import { preview, settle, assertNotElement } from '../../test/dom.js';
 
 const STEPS = '## Soup\n\n1) [ ] Chop.\n2) [ ] Fry.\n3) [ ] Simmer.\n\n@ Notes: x\n';
 
@@ -109,7 +109,7 @@ test('on a slide, a step\'s badge only says whether it\'s done: a click or Space
   p.posted.length = 0;
   const box = p.document.querySelector('li.step .task-box');
   box.focus();
-  assert.notEqual(p.document.activeElement, box, 'the keyboard doesn\'t reach it');
+  assertNotElement(p.document.activeElement, box, 'the keyboard doesn\'t reach it');
   box.click();
   box.dispatchEvent(new p.window.KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }));
   p.document.body.dispatchEvent(new p.window.KeyboardEvent('keydown', { key: 'x', bubbles: true, cancelable: true }));
