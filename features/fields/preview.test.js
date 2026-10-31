@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { render } from '../../src/render.js';
 import { slides } from '../../src/slides.js';
-import { frame, run, preview, settle } from '../../test/dom.js';
+import { frame, run, preview, settle, assertElement, assertNotElement } from '../../test/dom.js';
 
 /**
  * The fields of `markdown` as rendered, in a page with preview.js loaded:
@@ -121,11 +121,11 @@ test('the keyboard reaching a blank opens it, and Enter writes it and leaves the
   input.value = 'Ann';
   await press(input, 'Enter');
   assert.deepEqual(lines(edits), ['@ Name: Ann']);
-  assert.equal(slot.ownerDocument.activeElement, slot);
+  assertElement(slot.ownerDocument.activeElement, slot);
   assert.equal(slot.querySelector('textarea'), null);
   await press(slot, 'Enter');
   input = slot.querySelector('textarea');
-  assert.equal(slot.ownerDocument.activeElement, input);
+  assertElement(slot.ownerDocument.activeElement, input);
   // A term not yet defined is a blank named by the term.
   await press(input, 'Escape');
   const blank = fields[1].querySelector('.field-value');
@@ -143,7 +143,7 @@ test('a blank written keeps the keyboard through the render that follows', () =>
   p.show(render('@ Name: Ann\n').body);
   const slot = p.document.querySelector('.field-value');
   assert.equal(slot.textContent, 'Ann');
-  assert.equal(p.document.activeElement, slot);
+  assertElement(p.document.activeElement, slot);
   assert.equal(slot.querySelector('textarea'), null);
 });
 
@@ -159,7 +159,7 @@ test('a field\'s choice picks, writing its line; on a slide, none does, by a cli
   p.posted.length = 0;
   for (const pick of picks()) {
     pick.focus();
-    assert.notEqual(p.document.activeElement, pick, 'the keyboard doesn\'t reach it');
+    assertNotElement(p.document.activeElement, pick, 'the keyboard doesn\'t reach it');
     pick.dispatchEvent(new p.window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }));
     pick.click();
     pick.closest('label').click();
