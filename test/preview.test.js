@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { render } from '../src/render.js';
 import { slides } from '../src/slides.js';
-import { APP, preview, app, globals, frame, run, settle } from './dom.js';
+import { APP, preview, app, globals, frame, run, settle, assertElement } from './dom.js';
 
 const BASE = 'http://localhost:8734/content/notes/';
 
@@ -96,9 +96,9 @@ test('on a slide, Tab goes round its tabs and back out to the deck, and Space on
   };
   const sent = () => posted.splice(0).filter((m) => m.type === 'key' || m.type === 'untab').map((m) => m.key ?? m.type);
   send({ type: 'tab', back: false });
-  assert.equal(document.activeElement, boxes[0]);
+  assertElement(document.activeElement, boxes[0]);
   assert.equal(press('Tab'), true);
-  assert.equal(document.activeElement, boxes[1]);
+  assertElement(document.activeElement, boxes[1]);
   press(' ');
   assert.deepEqual(sent(), [], 'Space works the tab, and doesn\'t go up to the deck');
   press('n');
@@ -106,9 +106,9 @@ test('on a slide, Tab goes round its tabs and back out to the deck, and Space on
   press('Tab');
   assert.deepEqual(sent(), ['untab']);
   send({ type: 'tab', back: true });
-  assert.equal(document.activeElement, boxes[1]);
+  assertElement(document.activeElement, boxes[1]);
   press('Tab', { shiftKey: true });
-  assert.equal(document.activeElement, boxes[0]);
+  assertElement(document.activeElement, boxes[0]);
 });
 
 /** A slide of `markdown` being presented, and the keys it sends up to the deck. */
@@ -131,7 +131,7 @@ test('on a slide, Tab passes over a blank, a box, a choice and a card, which can
   box.type = 'checkbox';
   document.querySelector('.gm-doc').append(box);
   send({ type: 'tab', back: false });
-  assert.ok(document.activeElement === box, 'Tab reaches the checkbox, and nothing that can\'t be worked');
+  assertElement(document.activeElement, box, 'Tab reaches the checkbox, and nothing that can\'t be worked');
   press(' ');
   assert.deepEqual(sent(), [], 'Space ticks the checkbox');
   assert.equal(press('ArrowRight'), true);
@@ -224,7 +224,7 @@ test('the box that had the keyboard has it again once a render replaces it', () 
   show(render(md).body);
   document.querySelectorAll('.task-box')[1].focus();
   show(render(md.replace('[ ] two', '[x] two')).body);
-  assert.equal(document.activeElement, document.querySelectorAll('.task-box')[1]);
+  assertElement(document.activeElement, document.querySelectorAll('.task-box')[1]);
 });
 
 test('the keyboard comes back to the box it left, once the edit that took it is made', () => {
@@ -236,9 +236,9 @@ test('the keyboard comes back to the box it left, once the edit that took it is 
   // Ticking it takes the keyboard out of the frame, to the editor.
   leave(window, box);
   show(render(md.replace('[ ] two', '[x] two')).body);
-  assert.equal(document.activeElement, document.body);
+  assertElement(document.activeElement, document.body);
   send({ type: 'refocus' });
-  assert.equal(document.activeElement, document.querySelectorAll('.task-box')[1]);
+  assertElement(document.activeElement, document.querySelectorAll('.task-box')[1]);
 });
 
 /** Takes the keyboard from `node` out of the frame altogether, as to the editor. */
@@ -259,7 +259,7 @@ test('a box left by a click on the page isn\'t given the keyboard back', async (
   window.dispatchEvent(new window.Event('blur'));
   send({ type: 'refocus' });
   // (Not assert.equal: a failure would print the whole box.)
-  assert.ok(document.activeElement === document.body, 'the keyboard stays on the page');
+  assertElement(document.activeElement, document.body, 'the keyboard stays on the page');
 });
 
 test('a box the keyboard left the frame from is forgotten once it\'s back in the frame', () => {
@@ -272,7 +272,7 @@ test('a box the keyboard left the frame from is forgotten once it\'s back in the
   two.blur();
   send({ type: 'refocus' });
   // (Not assert.equal: a failure would print the whole box.)
-  assert.ok(document.activeElement === document.body, 'the keyboard stays on the page');
+  assertElement(document.activeElement, document.body, 'the keyboard stays on the page');
 });
 
 test('a box left for the editor is forgotten once a click on the page\'s text brings the keyboard back', () => {
@@ -289,7 +289,7 @@ test('a box left for the editor is forgotten once a click on the page\'s text br
   window.dispatchEvent(new window.Event('focus'));
   send({ type: 'refocus' });
   // (Not assert.equal: a failure would print the whole box.)
-  assert.ok(document.activeElement === document.body, 'the keyboard stays on the page');
+  assertElement(document.activeElement, document.body, 'the keyboard stays on the page');
 });
 
 test('a box left for the editor is forgotten once a key is pressed on the page', () => {
@@ -302,7 +302,7 @@ test('a box left for the editor is forgotten once a key is pressed on the page',
   window.dispatchEvent(new window.Event('focus'));
   document.body.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'j', bubbles: true }));
   send({ type: 'refocus' });
-  assert.ok(document.activeElement === document.body, 'the keyboard stays on the page');
+  assertElement(document.activeElement, document.body, 'the keyboard stays on the page');
 });
 
 test('a blank written into a definition is gone, and Enter on it opens nothing after it', () => {
@@ -317,7 +317,7 @@ test('a blank written into a definition is gone, and Enter on it opens nothing a
   show(render(md.replace('!Foo:', '!Foo: a thing')).body);
   assert.equal(document.querySelectorAll('textarea').length, 0, 'no blank is open');
   // (Not assert.equal: a failure would print the whole blank.)
-  assert.ok(document.activeElement === document.body, 'the keyboard stays on the page');
+  assertElement(document.activeElement, document.body, 'the keyboard stays on the page');
 });
 
 // The deck numbers a slide's steps before it sends it to the stage.
