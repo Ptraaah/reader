@@ -11,7 +11,9 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # Jobs take under a minute (slowest 57s, Oct-Nov 2026), so 5 means something's
+    # stuck, not slow. Raise it if a normal run gets near 2 minutes.
+    timeout-minutes: 5
     strategy:
       matrix:
         node: [22, 24]
