@@ -199,7 +199,7 @@ test('whether the page can be worked is one answer, set by each render and marke
   window.Preview.workable = true;
   assert.equal(html.classList.contains('unworkable'), false);
   document.querySelectorAll('li.step')[1].click();
-  assert.equal(document.querySelector('li.step-current'), document.querySelectorAll('li.step')[1]);
+  assertElement(document.querySelector('li.step-current'), document.querySelectorAll('li.step')[1]);
   press('Enter', document.querySelector('.date[data-line]'));
   assert.ok(document.querySelector('.date-open'));
   document.querySelector('.field').click();
